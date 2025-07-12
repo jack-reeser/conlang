@@ -33,6 +33,11 @@ func TestListBasics(t *testing.T) {
 		t.Log("Expected ToSet() to eliminate duplicate!")
 		t.Fail()
 	}
+
+	if selected := runeList.Select(func(r rune) bool { return r > 'a' }); selected.Len() != 4 {
+		t.Logf("Expected selected items to be length 4; got %d\n", selected.Len())
+		t.Fail()
+	}
 }
 
 func TestSetBasics(t *testing.T) {

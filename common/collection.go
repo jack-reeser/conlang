@@ -7,6 +7,8 @@ import (
 
 // Collection is a generic collection of comparable values.
 type Collection[T comparable] interface {
+	// Select returns a List of values that satisfy the given condition.
+	Select(func(T) bool) List[T]
 	// ToSlice returns a slice of comparable values.
 	ToSlice() []T
 	// ToMap returns a set map of comparable values.
@@ -51,6 +53,17 @@ func CollectionFrom[T comparable](a any) (collection Collection[T]) {
 
 // List is generic slice of comparable types.
 type List[T comparable] []T
+
+// Select returns a new List of items that satisfy the given condition.
+func (l List[T]) Select(f func(T) bool) List[T] {
+	selected := make([]T, 0)
+	for _, item := range l {
+		if f(item) {
+			selected = append(selected, item)
+		}
+	}
+	return selected
+}
 
 // ToSlice returns the underlying generic slice.
 func (l List[T]) ToSlice() []T { return l }
@@ -118,6 +131,17 @@ func (l List[T]) Len() int { return len(l) }
 
 // Set is a generic unique set of comparable types.
 type Set[T comparable] map[T]bool
+
+// Select returns a new List of items from the Set that satisfy the given condition.
+func (s Set[T]) Select(f func(T) bool) (selected List[T]) {
+	selected = make([]T, 0)
+	for item := range s {
+		if f(item) {
+			selected = append(selected, item)
+		}
+	}
+	return
+}
 
 // ToSlice converts the Set to a List, then returns the slice value of it.
 func (s Set[T]) ToSlice() []T { return s.ToList().ToSlice() }
