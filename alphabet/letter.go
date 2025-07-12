@@ -8,6 +8,10 @@ type Letter interface {
 	Lower() string
 	// IsClass returns true if this Letter matches the given Class.
 	IsClass(Class) bool
+	// GetClasses returns a list of all Classes that typify the Letter.
+	GetClassSlice() []Class
+	// GetClassMap returns the letter's underlying Class map.
+	GetClassMap() map[Class]bool
 }
 
 // NewLetter makes a new letter given an upper, lower, and variable number of
@@ -35,7 +39,17 @@ func NewLetter(upper, lower string, classes ...Class) Letter {
 // classSet is a reusable private set of Classes
 type classSet map[Class]bool
 
-func (c classSet) IsClass(class Class) bool { return c[class] }
+func (c classSet) IsClass(class Class) bool    { return c[class] }
+func (c classSet) GetClassMap() map[Class]bool { return c }
+func (c classSet) GetClassSlice() []Class {
+	classes := make([]Class, len(c))
+	i := 0
+	for class := range c {
+		classes[i] = class
+		i++
+	}
+	return classes
+}
 
 // simpleLetter represents letters that do not have distinct upper and lower values
 type simpleLetter struct {
