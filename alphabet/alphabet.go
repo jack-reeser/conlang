@@ -1,5 +1,7 @@
 package alphabet
 
+import "github.com/jack-reeser/conlang/common"
+
 // Alphabet represents a collection of Letters
 type Alphabet interface {
 	// GetLetters returns all Letters
@@ -12,31 +14,26 @@ type Alphabet interface {
 
 // New takes a list of Letters and returns an Alphabet
 func New(letters []Letter) Alphabet {
-	return basicAlphabet(letters)
+	return basicAlphabet{common.CollectionFrom[Letter](letters)}
 }
 
-type basicAlphabet []Letter
+type basicAlphabet struct {
+	common.Collection[Letter]
+}
 
-func (b basicAlphabet) GetLetters() []Letter { return b }
+func (b basicAlphabet) GetLetters() []Letter { return b.ToSlice() }
 func (b basicAlphabet) GetLettersByClass(c Class) []Letter {
-	found := make([]Letter, 0)
-	for _, letter := range b {
-		if letter.IsClass(c) {
-			found = append(found, letter)
-		}
-	}
-	return found
+	return b.Select(
+		func(l Letter) bool {
+			return l.IsClass(c)
+		})
 }
 func (b basicAlphabet) GetClasses() []Class {
 	alphabetClassSet := map[Class]bool{}
-	for _, letter := range b {
+	for _, letter := range b.ToSlice() {
 		for class := range letter.GetClassMap() {
 			alphabetClassSet[class] = true
 		}
 	}
-	allClasses := make([]Class, 0)
-	for value := range alphabetClassSet {
-		allClasses = append(allClasses, value)
-	}
-	return allClasses
+	return common.CollectionFrom[Class](alphabetClassSet).ToSlice()
 }

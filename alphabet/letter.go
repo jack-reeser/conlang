@@ -1,5 +1,7 @@
 package alphabet
 
+import "github.com/jack-reeser/conlang/common"
+
 // Letter is a symbol that represents a sound.
 type Letter interface {
 	// Upper returns a string that represents the uppercase version of the letter.
@@ -42,13 +44,7 @@ type classSet map[Class]bool
 func (c classSet) IsClass(class Class) bool    { return c[class] }
 func (c classSet) GetClassMap() map[Class]bool { return c }
 func (c classSet) GetClassSlice() []Class {
-	classes := make([]Class, len(c))
-	i := 0
-	for class := range c {
-		classes[i] = class
-		i++
-	}
-	return classes
+	return common.CollectionFrom[Class](c).ToSlice()
 }
 
 // simpleLetter represents letters that do not have distinct upper and lower values

@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"strings"
 
 	"github.com/jack-reeser/conlang/alphabet"
+	"github.com/jack-reeser/conlang/common"
 )
 
 func main() {
@@ -57,43 +57,20 @@ func main() {
 
 	fmt.Printf("Parsed an alphabet of length %d\n", len(letters))
 
-	// separate the letters by class
-	const C = alphabet.Class('C')
-	const V = alphabet.Class('V')
+	letterList := common.CollectionFrom[alphabet.Letter](letters)
 
-	getLettersByClass := func(c alphabet.Class) []alphabet.Letter {
-		foundList := make([]alphabet.Letter, 0)
-		for _, letter := range letters {
-			if letter.IsClass(c) {
-				foundList = append(foundList, letter)
-			}
-		}
-		return foundList
+	classMap := map[alphabet.Class]common.Collection[alphabet.Letter]{
+		'C': letterList.Select(func(l alphabet.Letter) bool { return l.IsClass('C') }),
+		'V': letterList.Select(func(l alphabet.Letter) bool { return l.IsClass('V') }),
 	}
 
-	consonants := getLettersByClass(C)
-	vowels := getLettersByClass(V)
-
-	fmt.Printf("Got %d consonants and %d vowels\n", len(consonants), len(vowels))
-
-	// make a function to get a random letter
-	getRandomLetter := func(c alphabet.Class) alphabet.Letter {
-		list := map[alphabet.Class][]alphabet.Letter{
-			C: consonants,
-			V: vowels,
-		}[c]
-		if len(list) > 0 {
-			i := rand.Intn(len(list))
-			return list[i]
-		}
-		return alphabet.NewLetter("?", "?", alphabet.Class('?'))
-	}
+	fmt.Printf("Got %d consonants and %d vowels\n", classMap['C'].Len(), classMap['V'].Len())
 
 	// make a function to get a random word using a pattern
 	getRandomWord := func(pattern string) string {
 		var randomWord string
 		for i, class := range alphabet.StringToClasses(pattern) {
-			letter := getRandomLetter(class)
+			letter := classMap[class].GetRandom()
 			if i == 0 {
 				randomWord = letter.Upper()
 			} else {
