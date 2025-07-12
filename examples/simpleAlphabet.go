@@ -70,7 +70,12 @@ func main() {
 	getRandomWord := func(pattern string) string {
 		var randomWord string
 		for i, class := range alphabet.StringToClasses(pattern) {
-			letter := classMap[class].GetRandom()
+			var letter alphabet.Letter
+			if list, ok := classMap[class]; ok {
+				letter = list.GetRandom()
+			} else {
+				letter = alphabet.NewLetter("?", "?", '?')
+			}
 			if i == 0 {
 				randomWord = letter.Upper()
 			} else {
