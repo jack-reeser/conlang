@@ -8,63 +8,75 @@ import (
 	"github.com/jack-reeser/conlang/common"
 )
 
+const (
+	COMMA     = ","
+	CONSONANT = alphabet.Class('C')
+	VOWEL     = alphabet.Class('V')
+)
+
 func main() {
 	fmt.Println("An example of a simple alphabet...")
 
 	// parse in a simple alphabet
-	inputLetters := []string{
-		"A,a,V",
-		"E,e,V",
-		"I,i,V",
-		"O,o,V",
-		"U,u,V",
-		"B,b,C",
-		"C,c,C",
-		"D,d,C",
-		"F,f,C",
-		"G,g,C",
-		"H,h,C",
-		"J,j,C",
-		"K,k,C",
-		"L,l,C",
-		"M,m,C",
-		"N,n,C",
-		"P,p,C",
-		"Q,q,C",
-		"R,r,C",
-		"S,s,C",
-		"T,t,C",
-		"V,v,C",
-		"W,w,C",
-		"X,x,C",
-		"Z,z,C",
+	inputLetters := map[alphabet.Class][]string{
+		VOWEL: {
+			"A,a",
+			"E,e",
+			"I,i",
+			"O,o",
+			"U,u",
+		},
+		CONSONANT: {
+			"B,b",
+			"C,c",
+			"D,d",
+			"F,f",
+			"G,g",
+			"H,h",
+			"J,j",
+			"K,k",
+			"L,l",
+			"M,m",
+			"N,n",
+			"P,p",
+			"Q,q",
+			"R,r",
+			"S,s",
+			"T,t",
+			"V,v",
+			"W,w",
+			"X,x",
+			"Z,z",
+		},
 	}
 
 	letters := []alphabet.Letter{}
-	const COMMA string = ","
 
-	for _, letterCsv := range inputLetters {
-		values := strings.Split(letterCsv, COMMA)
-		if len(values) != 3 {
-			continue
-		} else {
-			letter := alphabet.NewLetter(
-				values[0], values[1], alphabet.StringToClasses(values[2])...)
-
-			letters = append(letters, letter)
+	addLetter := func(class alphabet.Class, csvList []string) {
+		for _, csv := range csvList {
+			if values := strings.Split(csv, COMMA); len(values) == 2 {
+				letters = append(
+					letters,
+					alphabet.NewLetter(values[0], values[1], class),
+				)
+			}
 		}
+	}
+
+	for class, list := range inputLetters {
+		addLetter(class, list)
 	}
 
 	fmt.Printf("Parsed an alphabet of length %d\n", len(letters))
 
-	letterList := common.CollectionFrom[alphabet.Letter](letters)
+	simpleAlphabet := alphabet.New(letters)
 
 	classMap := map[alphabet.Class]common.Collection[alphabet.Letter]{
-		'C': letterList.Select(func(l alphabet.Letter) bool { return l.IsClass('C') }),
-		'V': letterList.Select(func(l alphabet.Letter) bool { return l.IsClass('V') }),
+		CONSONANT: simpleAlphabet.GetLettersByClass(CONSONANT),
+		VOWEL:     simpleAlphabet.GetLettersByClass(VOWEL),
 	}
 
-	fmt.Printf("Got %d consonants and %d vowels\n", classMap['C'].Len(), classMap['V'].Len())
+	fmt.Printf("Got %d consonants and %d vowels\n", classMap[CONSONANT].Len(), classMap[VOWEL].Len())
 
 	// make a function to get a random word using a pattern
 	getRandomWord := func(pattern string) string {
@@ -85,7 +97,7 @@ func main() {
 		return randomWord
 	}
 
-	fmt.Println("Generated random words")
+	fmt.Println("Generated random words:")
 
 	for _, pattern := range []string{"CVC", "CVCV", "VC", "V", "VCV", "#"} {
 		fmt.Printf("%s ", getRandomWord(pattern))
