@@ -1,12 +1,15 @@
 package common
 
 import (
+	"fmt"
 	"math/rand"
 	"slices"
+	"strings"
 )
 
 // Collection is a generic collection of comparable values.
 type Collection[T comparable] interface {
+	fmt.Stringer
 	// Select returns a List of values that satisfy the given condition.
 	Select(func(T) bool) List[T]
 	// ToSlice returns a slice of comparable values.
@@ -129,6 +132,22 @@ func (l List[T]) ToSortedList(f func(T, T) int) (sorted List[T]) {
 // Len returns the length of the underlying List slice.
 func (l List[T]) Len() int { return len(l) }
 
+func (l List[T]) String() string {
+	switch v := any(l).(type) {
+	case []string:
+		return strings.Join(v, "")
+	case []rune:
+		return string(v)
+	case []fmt.Stringer:
+		s := make([]string, len(v))
+		for i := 0; i < len(v); i++ {
+			s[i] = v[i].String()
+		}
+		return strings.Join(s, "")
+	}
+	return "???"
+}
+
 // Set is a generic unique set of comparable types.
 type Set[T comparable] map[T]bool
 
@@ -197,3 +216,7 @@ func (s Set[T]) ToSortedList(f func(T, T) int) List[T] { return s.ToList().ToSor
 
 // Len return the length of the underlying Set map.
 func (s Set[T]) Len() int { return len(s) }
+
+func (s Set[T]) String() string {
+	return s.ToList().String()
+}

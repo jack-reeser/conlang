@@ -1,6 +1,10 @@
 package alphabet
 
-import "github.com/jack-reeser/conlang/common"
+import (
+	"fmt"
+
+	"github.com/jack-reeser/conlang/common"
+)
 
 // Letter is a symbol that represents a sound.
 type Letter interface {
@@ -14,6 +18,7 @@ type Letter interface {
 	GetClassSlice() []Class
 	// GetClassMap returns the letter's underlying Class map.
 	GetClassMap() map[Class]bool
+	fmt.Stringer
 }
 
 // NewLetter makes a new letter given an upper, lower, and variable number of
@@ -53,8 +58,9 @@ type simpleLetter struct {
 	classSet
 }
 
-func (s simpleLetter) Upper() string { return s.letter }
-func (s simpleLetter) Lower() string { return s.letter }
+func (s simpleLetter) Upper() string  { return s.letter }
+func (s simpleLetter) Lower() string  { return s.letter }
+func (s simpleLetter) String() string { return s.letter }
 
 // fullLetter represents letters with distinct upper and lower values
 type fullLetter struct {
@@ -63,5 +69,6 @@ type fullLetter struct {
 	classSet
 }
 
-func (s fullLetter) Upper() string { return s.upper }
-func (s fullLetter) Lower() string { return s.lower }
+func (s fullLetter) Upper() string  { return s.upper }
+func (s fullLetter) Lower() string  { return s.lower }
+func (s fullLetter) String() string { return s.lower }
